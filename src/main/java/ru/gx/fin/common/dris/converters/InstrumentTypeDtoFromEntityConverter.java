@@ -34,15 +34,25 @@ public class InstrumentTypeDtoFromEntityConverter extends AbstractDtoFromEntityC
     @Override
     @NotNull
     public InstrumentType createDtoBySource(@NotNull final InstrumentTypeEntity source) {
-        final var rootType = this.findDtoBySource(source.getRootType());
-        final var parent = this.findDtoBySource(source.getParent());
-        return new InstrumentType(
+        var rootType = this.findDtoBySource(source.getRootType());
+        if (source.getRootType() != null && rootType == null) {
+            rootType = this.createDtoBySource(source);
+        }
+
+        var parent = this.findDtoBySource(source.getParent());
+        if (source.getParent() != null && parent == null) {
+            parent = this.createDtoBySource(source);
+        }
+
+        final var result = new InstrumentType(
                 rootType,
                 parent,
                 source.getCode(),
                 source.getNameShort(),
                 source.getNameFull()
         );
+        this.instrumentTypesMemoryRepository.put(result);
+        return result;
     }
 
     @Override

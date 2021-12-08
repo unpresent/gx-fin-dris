@@ -34,10 +34,12 @@ public class PlaceDtoFromEntityConverter extends AbstractDtoFromEntityConverter<
     @Override
     @NotNull
     public Place createDtoBySource(@NotNull PlaceEntity source) {
-        return new Place(
+        final var result = new Place(
                 source.getCode(),
                 source.getName()
         );
+        this.placesMemoryRepository.put(result);
+        return result;
     }
 
     @Override

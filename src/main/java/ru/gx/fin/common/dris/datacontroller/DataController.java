@@ -256,7 +256,7 @@ public class DataController {
         converter.fillDtoCollectionFromSource(dataObjects, entityObjects);
 
         // TODO: !!!!
-        memoryRepository.putAll(dataObjects);
+        // memoryRepository.putAll(dataObjects);
 
         // Выгружаем данные
         dataObjects.forEach(System.out::println);

@@ -55,12 +55,14 @@ public class ProviderDtoFromEntityConverter extends AbstractDtoFromEntityConvert
 
         final var place = this.placeDtoFromEntityConverter.findDtoBySource(source.getPlace());
 
-        return new Provider(
+        final var result = new Provider(
                 source.getCode(),
                 source.getName(),
                 type,
                 place
         );
+        this.providersMemoryRepository.put(result);
+        return result;
     }
 
     @Override
