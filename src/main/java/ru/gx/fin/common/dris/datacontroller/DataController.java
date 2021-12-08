@@ -8,7 +8,6 @@ import org.hibernate.SessionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.redis.core.RedisTemplate;
 import ru.gx.core.channels.ChannelConfigurationException;
 import ru.gx.core.data.ActiveSessionsContainer;
 import ru.gx.core.data.DataObject;
@@ -25,6 +24,7 @@ import ru.gx.core.simpleworker.SimpleWorker;
 import ru.gx.core.simpleworker.SimpleWorkerOnIterationExecuteEvent;
 import ru.gx.core.simpleworker.SimpleWorkerOnStartingExecuteEvent;
 import ru.gx.core.simpleworker.SimpleWorkerOnStoppingExecuteEvent;
+import ru.gx.fin.common.dris.config.ChannelsNames;
 import ru.gx.fin.common.dris.out.InstrumentType;
 import ru.gx.fin.common.dris.out.Place;
 import ru.gx.fin.common.dris.out.Provider;
@@ -33,6 +33,7 @@ import ru.gx.fin.common.dris.out.ProviderType;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.security.InvalidParameterException;
+import java.util.Objects;
 
 import static lombok.AccessLevel.PROTECTED;
 
@@ -51,10 +52,6 @@ public class DataController {
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
     private SimpleWorker simpleWorker;
-
-    @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private DataControllerSettingsContainer settings;
 
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
@@ -176,17 +173,12 @@ public class DataController {
     // TODO: Убрать нахер (заменить конфигурацией)
     @NotNull
     public String getTopicNameByDtoClass(@NotNull final Class<? extends DataObject> dtoClass) {
-        if (dtoClass == Place.class) {
-            return settings.getOutcomeCollectionPlaces();
-        } else if (dtoClass == ProviderType.class) {
-            return settings.getOutcomeCollectionProviderTypes();
-        } else if (dtoClass == Provider.class) {
-            return settings.getOutcomeCollectionProviders();
-        } else if (dtoClass == InstrumentType.class) {
-            return settings.getOutcomeCollectionInstrumentTypes();
-        } else {
-            throw new InvalidParameterException("Unknown dto class " + dtoClass.getSimpleName());
+        for (final var description : this.redisOutcomeTopicsConfiguration.getAll()) {
+            if (((RedisOutcomeCollectionLoadingDescriptor<?, ?>)description).getDataObjectClass() == dtoClass) {
+                return description.getName();
+            }
         }
+        throw new InvalidParameterException("Unknown dto class " + dtoClass.getSimpleName());
     }
 
     // TODO: Убрать нахер (заменить конфигурацией)
@@ -194,39 +186,32 @@ public class DataController {
     @NotNull
     public <E extends EntityObject, EP extends EntitiesPackage<E>, ID, O extends DataObject, P extends DataPackage<O>>
     EntityDtoLinkDescriptor<E, EP, ID, O, P> getDescriptorByTopicName(@NotNull final String topicName) throws EntitiesDtoLinksConfigurationException {
-        if (settings.getOutcomeCollectionPlaces().equals(topicName)) {
-            return (EntityDtoLinkDescriptor<E, EP, ID, O, P>) this.entitiesDtosLinksConfiguration.getByDtoClass(Place.class);
-        } else if (settings.getOutcomeCollectionProviderTypes().equals(topicName)) {
-            return (EntityDtoLinkDescriptor<E, EP, ID, O, P>) this.entitiesDtosLinksConfiguration.getByDtoClass(ProviderType.class);
-        } else if (settings.getOutcomeCollectionProviders().equals(topicName)) {
-            return (EntityDtoLinkDescriptor<E, EP, ID, O, P>) this.entitiesDtosLinksConfiguration.getByDtoClass(Provider.class);
-        } else if (settings.getOutcomeCollectionInstrumentTypes().equals(topicName)) {
-            return (EntityDtoLinkDescriptor<E, EP, ID, O, P>) this.entitiesDtosLinksConfiguration.getByDtoClass(InstrumentType.class);
-        } else {
-            throw new InvalidParameterException("Unknown topicName " + topicName);
-        }
+        final var redisDescriptor = (RedisOutcomeCollectionLoadingDescriptor<O, P>)this.redisOutcomeTopicsConfiguration.get(topicName);
+        return this
+                .entitiesDtosLinksConfiguration
+                .getByDtoClass(Objects.requireNonNull(redisDescriptor.getDataObjectClass()));
     }
 
     protected void publishAllOnStart() throws Exception {
-        String topic = settings.getOutcomeCollectionPlaces();
+        String topic = ChannelsNames.DrisSnapshots.PLACES;
         publishSnapshot(
                 topic,
                 this.getDescriptorByTopicName(topic)
         );
 
-        topic = settings.getOutcomeCollectionProviderTypes();
+        topic = ChannelsNames.DrisSnapshots.PROVIDER_TYPES;
         publishSnapshot(
                 topic,
                 this.getDescriptorByTopicName(topic)
         );
 
-        topic = settings.getOutcomeCollectionProviders();
+        topic = ChannelsNames.DrisSnapshots.PROVIDERS;
         publishSnapshot(
                 topic,
                 this.getDescriptorByTopicName(topic)
         );
 
-        topic = settings.getOutcomeCollectionInstrumentTypes();
+        topic = ChannelsNames.DrisSnapshots.INSTRUMENT_TYPES;
         publishSnapshot(
                 topic,
                 this.getDescriptorByTopicName(topic)

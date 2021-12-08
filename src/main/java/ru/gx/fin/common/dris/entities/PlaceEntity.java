@@ -14,7 +14,7 @@ import javax.persistence.*;
  * Площадка
  */
 @Entity
-@Table(schema = "Base", name = "Places")
+@Table(schema = "Dris", name = "Places")
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Getter

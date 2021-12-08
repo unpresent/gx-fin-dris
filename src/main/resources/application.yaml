@@ -24,11 +24,12 @@ service:
     outcome-collections:
       simple-configuration.enabled: true
       standard-uploader.enabled: true
-      places: dris.places
-      provider-types: dris.providerTypes
-      providers: dris.providers
-      instrument-types: dris.instrumentTypes
-
+  mem-data:
+    dris:
+      instrument-types.enabled: true
+      places.enabled: true
+      provider-types.enabled: true
+      providers.enabled: true
 
 # Логирование
 logging:
@@ -52,7 +53,7 @@ spring:
       ddl-auto: validate # create, create-drop, update, validate
       naming.physical-strategy: ru.gx.core.data.naming.PhysicalNamingStrategyQuotedImpl
   datasource:
-    url: jdbc:postgresql://localhost:5432/gxfin_base
+    url: jdbc:postgresql://localhost:5432/gxfin_dris
     username: gxfin
     password: 12033021
     hikari:
