@@ -63,7 +63,7 @@ public class EntitiesDtoLinksConfig implements EntitiesDtoLinksConfigurator {
 
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
-    // <editor-fold desc="implemens EntitiesDtoLinksConfigurator">
+    // <editor-fold desc="implements EntitiesDtoLinksConfigurator">
 
     @Override
     public void configureLinks(@NotNull final EntitiesDtosLinksConfiguration configuration) {

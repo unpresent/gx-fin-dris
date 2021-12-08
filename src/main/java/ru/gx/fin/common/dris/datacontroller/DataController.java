@@ -170,18 +170,6 @@ public class DataController {
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Вспомогательные сервисы">
-    // TODO: Убрать нахер (заменить конфигурацией)
-    @NotNull
-    public String getTopicNameByDtoClass(@NotNull final Class<? extends DataObject> dtoClass) {
-        for (final var description : this.redisOutcomeTopicsConfiguration.getAll()) {
-            if (((RedisOutcomeCollectionLoadingDescriptor<?, ?>)description).getDataObjectClass() == dtoClass) {
-                return description.getName();
-            }
-        }
-        throw new InvalidParameterException("Unknown dto class " + dtoClass.getSimpleName());
-    }
-
-    // TODO: Убрать нахер (заменить конфигурацией)
     @SuppressWarnings("unchecked")
     @NotNull
     public <E extends EntityObject, EP extends EntitiesPackage<E>, ID, O extends DataObject, P extends DataPackage<O>>
@@ -255,14 +243,8 @@ public class DataController {
         final var dataObjects = dataPackage.getObjects();
         converter.fillDtoCollectionFromSource(dataObjects, entityObjects);
 
-        // TODO: !!!!
-        // memoryRepository.putAll(dataObjects);
-
         // Выгружаем данные
-        dataObjects.forEach(System.out::println);
-
         final var redisDescriptor = this.<O, P>getRedisOutcomeDescriptorByCollectionName(topicName);
-
         this.redisUploader.uploadDataObjects(redisDescriptor, dataObjects, memoryRepository);
     }
     // </editor-fold>
