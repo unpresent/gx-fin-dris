@@ -16,7 +16,7 @@ import javax.persistence.*;
  * Тип ФИ
  */
 @Entity
-@Table(schema = "Base", name = "Instruments_Types")
+@Table(schema = "Dris", name = "Instruments_Types")
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Getter

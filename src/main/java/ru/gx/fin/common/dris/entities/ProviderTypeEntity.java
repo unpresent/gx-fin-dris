@@ -16,7 +16,7 @@ import javax.persistence.*;
  * Провайдеры
  */
 @Entity
-@Table(schema = "Base", name = "Providers_Types")
+@Table(schema = "Dris", name = "Providers_Types")
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Getter
