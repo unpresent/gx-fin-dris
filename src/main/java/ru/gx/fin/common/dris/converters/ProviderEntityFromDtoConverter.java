@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.gx.core.data.edlinking.AbstractEntityFromDtoConverter;
 import ru.gx.fin.common.dris.out.Provider;
 import ru.gx.fin.common.dris.entities.ProviderEntity;
+import ru.gx.fin.common.dris.repository.PlacesRepository;
+import ru.gx.fin.common.dris.repository.ProviderTypesRepository;
 import ru.gx.fin.common.dris.repository.ProvidersRepository;
 
 import static lombok.AccessLevel.PROTECTED;
@@ -19,11 +21,11 @@ public class ProviderEntityFromDtoConverter extends AbstractEntityFromDtoConvert
 
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private ProviderTypeEntityFromDtoConverter providerTypeEntityFromDtoConverter;
+    private ProviderTypesRepository providerTypesRepository;
 
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private PlaceEntityFromDtoConverter placeEntityFromDtoConverter;
+    private PlacesRepository placesRepository;
 
     @Override
     @Nullable
@@ -49,8 +51,14 @@ public class ProviderEntityFromDtoConverter extends AbstractEntityFromDtoConvert
 
     @Override
     public void updateDtoBySource(@NotNull ProviderEntity destination, @NotNull Provider source) {
-        final var type = this.providerTypeEntityFromDtoConverter.findDtoBySource(source.getType());
-        final var place = this.placeEntityFromDtoConverter.findDtoBySource(source.getPlace());
+        final var type = this.providerTypesRepository
+                .findByCode(source.getType())
+                .orElse(null);
+
+        final var place = this.placesRepository
+                .findByCode(source.getPlace())
+                .orElse(null);
+
         destination
                 .setCode(source.getCode())
                 .setName(source.getName())

@@ -8,32 +8,28 @@ import org.hibernate.SessionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
+import ru.gx.core.channels.ChannelApiDescriptor;
 import ru.gx.core.channels.ChannelConfigurationException;
 import ru.gx.core.data.ActiveSessionsContainer;
 import ru.gx.core.data.DataObject;
-import ru.gx.core.data.DataPackage;
 import ru.gx.core.data.edlinking.EntitiesDtoLinksConfigurationException;
-import ru.gx.core.data.edlinking.EntitiesDtosLinksConfiguration;
-import ru.gx.core.data.edlinking.EntityDtoLinkDescriptor;
-import ru.gx.core.data.entity.EntitiesPackage;
+import ru.gx.core.data.edlinking.EntityUploadingDescriptor;
 import ru.gx.core.data.entity.EntityObject;
-import ru.gx.core.redis.upload.RedisOutcomeCollectionLoadingDescriptor;
+import ru.gx.core.messaging.Message;
+import ru.gx.core.messaging.MessageBody;
+import ru.gx.core.messaging.MessageHeader;
+import ru.gx.core.redis.upload.RedisOutcomeCollectionUploadingDescriptor;
 import ru.gx.core.redis.upload.RedisOutcomeCollectionsUploader;
-import ru.gx.core.redis.upload.SimpleRedisOutcomeCollectionsConfiguration;
 import ru.gx.core.simpleworker.SimpleWorker;
 import ru.gx.core.simpleworker.SimpleWorkerOnIterationExecuteEvent;
 import ru.gx.core.simpleworker.SimpleWorkerOnStartingExecuteEvent;
 import ru.gx.core.simpleworker.SimpleWorkerOnStoppingExecuteEvent;
-import ru.gx.fin.common.dris.config.ChannelsNames;
-import ru.gx.fin.common.dris.out.InstrumentType;
-import ru.gx.fin.common.dris.out.Place;
-import ru.gx.fin.common.dris.out.Provider;
-import ru.gx.fin.common.dris.out.ProviderType;
+import ru.gx.fin.common.dris.config.DrisEntitiesUploadingConfiguration;
+import ru.gx.fin.common.dris.config.RedisOutcomeCollectionsConfiguration;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-import java.security.InvalidParameterException;
-import java.util.Objects;
+import java.util.ArrayList;
 
 import static lombok.AccessLevel.PROTECTED;
 
@@ -55,7 +51,7 @@ public class DataController {
 
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private EntitiesDtosLinksConfiguration entitiesDtosLinksConfiguration;
+    private DrisEntitiesUploadingConfiguration entitiesUploadingConfiguration;
 
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
@@ -73,7 +69,7 @@ public class DataController {
 
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private SimpleRedisOutcomeCollectionsConfiguration redisOutcomeTopicsConfiguration;
+    private RedisOutcomeCollectionsConfiguration redisOutcomeTopicsConfiguration;
 
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
@@ -171,81 +167,52 @@ public class DataController {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Вспомогательные сервисы">
     @SuppressWarnings("unchecked")
-    @NotNull
-    public <E extends EntityObject, EP extends EntitiesPackage<E>, ID, O extends DataObject, P extends DataPackage<O>>
-    EntityDtoLinkDescriptor<E, EP, ID, O, P> getDescriptorByTopicName(@NotNull final String topicName) throws EntitiesDtoLinksConfigurationException {
-        final var redisDescriptor = (RedisOutcomeCollectionLoadingDescriptor<O, P>)this.redisOutcomeTopicsConfiguration.get(topicName);
-        return this
-                .entitiesDtosLinksConfiguration
-                .getByDtoClass(Objects.requireNonNull(redisDescriptor.getDataObjectClass()));
-    }
-
     protected void publishAllOnStart() throws Exception {
-        String topic = ChannelsNames.DrisSnapshots.PLACES;
-        publishSnapshot(
-                topic,
-                this.getDescriptorByTopicName(topic)
-        );
-
-        topic = ChannelsNames.DrisSnapshots.PROVIDER_TYPES;
-        publishSnapshot(
-                topic,
-                this.getDescriptorByTopicName(topic)
-        );
-
-        topic = ChannelsNames.DrisSnapshots.PROVIDERS;
-        publishSnapshot(
-                topic,
-                this.getDescriptorByTopicName(topic)
-        );
-
-        topic = ChannelsNames.DrisSnapshots.INSTRUMENT_TYPES;
-        publishSnapshot(
-                topic,
-                this.getDescriptorByTopicName(topic)
-        );
+        for(final var descriptor : this.entitiesUploadingConfiguration.getAll()) {
+            this.publishSnapshot((EntityUploadingDescriptor<ChannelApiDescriptor<Message<?,?>>, EntityObject, DataObject>) descriptor);
+        }
     }
 
-    @SuppressWarnings("unchecked")
     @NotNull
-    private <O extends DataObject, P extends DataPackage<O>>
-    RedisOutcomeCollectionLoadingDescriptor<O, P> getRedisOutcomeDescriptorByCollectionName(@NotNull final String collectionName) {
+    private RedisOutcomeCollectionUploadingDescriptor<? extends Message<? extends MessageHeader, ? extends MessageBody>> getRedisOutcomeDescriptorByChannelApi(@NotNull final ChannelApiDescriptor<?> channelApiDescriptor) {
         for (final var descriptor : this.redisOutcomeTopicsConfiguration.getAll()) {
-            if (collectionName.equals(descriptor.getName())) {
-                return (RedisOutcomeCollectionLoadingDescriptor<O, P>)descriptor;
+            if (descriptor.getApi() == channelApiDescriptor) {
+                return (RedisOutcomeCollectionUploadingDescriptor<? extends Message<? extends MessageHeader, ? extends MessageBody>>) descriptor;
             }
         }
-        throw new ChannelConfigurationException("Unknown collection name: " + collectionName);
+        throw new ChannelConfigurationException("There isn't RedisOutcomeCollectionUploadingDescriptor for api: " + channelApiDescriptor.getName());
     }
 
-    public <E extends EntityObject, EP extends EntitiesPackage<E>, ID, O extends DataObject, P extends DataPackage<O>>
-    void publishSnapshot(@NotNull final String topicName, @NotNull final EntityDtoLinkDescriptor<E, EP, ID, O, P> linkDescriptor) throws Exception {
-        final var repository = linkDescriptor.getRepository();
+    public <M extends Message<? extends MessageHeader, ? extends MessageBody>,
+            E extends EntityObject, O extends DataObject,
+            CH extends ChannelApiDescriptor<M>>
+    void publishSnapshot(EntityUploadingDescriptor<CH, E, O> entityUploadingDescriptor) throws Exception {
+
+        final var repository = entityUploadingDescriptor.getRepository();
         if (repository == null) {
-            throw new EntitiesDtoLinksConfigurationException("Can't get CrudRepository by dtoClass " + linkDescriptor.getDtoClass().getName());
+            throw new EntitiesDtoLinksConfigurationException("Can't get CrudRepository by ChannelApi " + entityUploadingDescriptor.getChannelApiDescriptor().getName());
         }
 
-        final var memoryRepository = linkDescriptor.getMemoryRepository();
-        if (memoryRepository == null) {
-            throw new EntitiesDtoLinksConfigurationException("Can't get MemoryRepository by dtoClass " + linkDescriptor.getDtoClass().getName());
-        }
-
-        final var converter = linkDescriptor.getDtoFromEntityConverter();
+        final var converter = entityUploadingDescriptor.getDtoFromEntityConverter();
         if (converter == null) {
-            throw new EntitiesDtoLinksConfigurationException("Can't get Converter by dtoClass " + linkDescriptor.getDtoClass().getName());
+            throw new EntitiesDtoLinksConfigurationException("Can't get Converter by ChannelApi " + entityUploadingDescriptor.getChannelApiDescriptor().getName());
+        }
+
+        final var keyExtractor = entityUploadingDescriptor.getKeyExtractor();
+        if (keyExtractor == null) {
+            throw new EntitiesDtoLinksConfigurationException("Can't get KeyExtractor by ChannelApi " + entityUploadingDescriptor.getChannelApiDescriptor().getName());
         }
 
         // Загружаем данные из БД:
         final var entityObjects = repository.findAll();
 
-        // Преобразуем в DTO
-        final var dataPackage = linkDescriptor.createDtoPackage();
-        final var dataObjects = dataPackage.getObjects();
+        // Преобразуем в список DTO
+        final var dataObjects = new ArrayList<O>();
         converter.fillDtoCollectionFromSource(dataObjects, entityObjects);
 
         // Выгружаем данные
-        final var redisDescriptor = this.<O, P>getRedisOutcomeDescriptorByCollectionName(topicName);
-        this.redisUploader.uploadDataObjects(redisDescriptor, dataObjects, memoryRepository);
+        final var redisDescriptor = this.getRedisOutcomeDescriptorByChannelApi(entityUploadingDescriptor.getChannelApiDescriptor());
+        this.redisUploader.uploadDataObjects(redisDescriptor, dataObjects, keyExtractor);
     }
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------

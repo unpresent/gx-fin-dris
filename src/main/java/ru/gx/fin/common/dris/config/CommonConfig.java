@@ -77,13 +77,13 @@ public abstract class CommonConfig {
     // <editor-fold desc="Redis">
 
     @Bean
-    EntitiesDtoLinksConfig entitiesDtoLinksConfig() {
-        return new EntitiesDtoLinksConfig();
+    DrisEntitiesUploadingConfiguration drisEntitiesUploadingConfiguration() {
+        return new DrisEntitiesUploadingConfiguration();
     }
 
     @Bean
-    ChannelsConfiguratorImpl drisChannelsConfigurator() {
-        return new ChannelsConfiguratorImpl();
+    RedisOutcomeCollectionsConfiguration redisOutcomeCollectionsConfiguration() {
+        return new RedisOutcomeCollectionsConfiguration("redis-outcome-config");
     }
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------

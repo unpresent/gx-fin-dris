@@ -41,8 +41,14 @@ public class ProviderTypeEntityFromDtoConverter extends AbstractEntityFromDtoCon
 
     @Override
     public void updateDtoBySource(@NotNull ProviderTypeEntity destination, @NotNull ProviderType source) {
-        final var parent = this.findDtoBySource(source.getParent());
-        final var rootType = this.findDtoBySource(source.getRootType());
+        final var rootType = this.providerTypesRepository
+                .findByCode(source.getRootType())
+                .orElse(null);
+
+        final var parent = this.providerTypesRepository
+                .findByCode(source.getParent())
+                .orElse(null);
+
         destination
                 .setCode(source.getCode())
                 .setName(source.getName())

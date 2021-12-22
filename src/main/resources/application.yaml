@@ -12,24 +12,18 @@ service:
     min-time-per-iteration-ms: 1000
     timeout-runner-life-ms: 60000
     print-statistics-every-ms: 1000
-  entities-dto-links:
-    configurator-caller.enabled: true
-    simple-configuration.enabled: true
-  channels:
-    configurator-caller:
-      enabled: true
   redis:
     server: localhost
     port: 6379
     outcome-collections:
       simple-configuration.enabled: true
       standard-uploader.enabled: true
-  mem-data:
-    dris:
-      instrument-types.enabled: true
-      places.enabled: true
-      provider-types.enabled: true
-      providers.enabled: true
+  channels-api:
+    dris-snapshots:
+      places-v1.enabled: true
+      provider-types-v1.enabled: true
+      providers-v1.enabled: true
+      instrument-types-v1.enabled: true
 
 # Логирование
 logging:
