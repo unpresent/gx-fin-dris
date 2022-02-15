@@ -6,6 +6,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("ClassCanBeRecord")
 @Getter
 public class SettingInfo {
     private final String name;

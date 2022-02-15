@@ -26,6 +26,7 @@ public class SettingsDataController {
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
     private StandardSettingsController settings;
 
+    @SuppressWarnings("unused")
     @Operation(description = "Get any setting value")
     @ApiResponses(
             @ApiResponse(
@@ -39,6 +40,7 @@ public class SettingsDataController {
                     }
             )
     )
+
     @GetMapping("get-setting")
     public SettingInfo getSetting(@RequestParam("name") @NotNull final String name) {
         final var value = this.settings.getSetting(name);

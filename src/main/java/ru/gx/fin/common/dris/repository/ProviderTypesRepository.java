@@ -4,7 +4,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import ru.gx.fin.common.dris.entities.ProviderEntity;
 import ru.gx.fin.common.dris.entities.ProviderTypeEntity;
 
 import java.util.List;
