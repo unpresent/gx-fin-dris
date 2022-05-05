@@ -1,12 +1,16 @@
 package ru.gx.fin.common.dris.converters;
 
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.stereotype.Component;
 import ru.gx.core.data.NotAllowedObjectUpdateException;
 import ru.gx.core.data.edlinking.AbstractDtoFromEntityConverter;
 import ru.gx.fin.common.dris.entities.PlaceEntity;
 import ru.gx.fin.common.dris.out.Place;
 
+@RequiredArgsConstructor
+@Component
 public class PlaceDtoFromEntityConverter extends AbstractDtoFromEntityConverter<Place, PlaceEntity> {
     @Override
     @Nullable

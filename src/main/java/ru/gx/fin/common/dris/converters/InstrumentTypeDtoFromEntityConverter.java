@@ -1,12 +1,16 @@
 package ru.gx.fin.common.dris.converters;
 
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.stereotype.Component;
 import ru.gx.core.data.NotAllowedObjectUpdateException;
 import ru.gx.core.data.edlinking.AbstractDtoFromEntityConverter;
 import ru.gx.fin.common.dris.entities.InstrumentTypeEntity;
 import ru.gx.fin.common.dris.out.InstrumentType;
 
+@RequiredArgsConstructor
+@Component
 public class InstrumentTypeDtoFromEntityConverter extends AbstractDtoFromEntityConverter<InstrumentType, InstrumentTypeEntity> {
 
     @Override

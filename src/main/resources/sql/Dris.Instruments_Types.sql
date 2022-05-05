@@ -10,12 +10,20 @@ CREATE TABLE IF NOT EXISTS "Dris"."Instruments_Types"
     "Code"          varchar(50)     COLLATE pg_catalog."default"        NOT NULL,
     "NameShort"     varchar(100)    COLLATE pg_catalog."default"            NULL,
     "NameFull"      varchar(500)    COLLATE pg_catalog."default"            NULL,
-    CONSTRAINT "Instruments_Types_pkey" PRIMARY KEY ("Id"),
-    CONSTRAINT "Instruments_Types_fkey_Parent" FOREIGN KEY ("Parent_Id") REFERENCES "Dris"."Instruments_Types" ("Id"),
-    CONSTRAINT "Instruments_Types_fkey_Root" FOREIGN KEY ("RootType_Id") REFERENCES "Dris"."Instruments_Types" ("Id")
+    CONSTRAINT "Instruments_Types_pk" PRIMARY KEY ("Id"),
+    CONSTRAINT "Instruments_Types_fk(Parent_Id)" FOREIGN KEY ("Parent_Id") REFERENCES "Dris"."Instruments_Types" ("Id"),
+    CONSTRAINT "Instruments_Types_fk(Root_Id)" FOREIGN KEY ("RootType_Id") REFERENCES "Dris"."Instruments_Types" ("Id"),
+    CONSTRAINT "Instruments_Types_uq(Code)" UNIQUE ("Code")
 ) TABLESPACE pg_default;
 
 ALTER TABLE "Dris"."Instruments_Types" OWNER to gxfin;
+
+COMMENT ON TABLE "Dris"."Instruments_Types" IS 'Типы счетов';
+COMMENT ON COLUMN "Dris"."Instruments_Types"."Code" IS 'Код';
+COMMENT ON COLUMN "Dris"."Instruments_Types"."RootType_Id" IS 'Корневой тип';
+COMMENT ON COLUMN "Dris"."Instruments_Types"."Parent_Id" IS 'Родительский тип';
+COMMENT ON COLUMN "Dris"."Instruments_Types"."NameShort" IS 'Название краткое';
+COMMENT ON COLUMN "Dris"."Instruments_Types"."NameFull" IS 'Название полное';
 
 INSERT INTO "Dris"."Instruments_Types" ("Id", "RootType_Id", "Parent_Id", "Code", "NameShort", "NameFull")
 VALUES

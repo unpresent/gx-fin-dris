@@ -1,8 +1,9 @@
 package ru.gx.fin.common.dris.config;
 
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.context.annotation.Configuration;
 import ru.gx.core.data.edlinking.AbstractEntitiesUploadingConfiguration;
 import ru.gx.core.data.edlinking.EntitiesDtoLinksConfigurationException;
 import ru.gx.fin.common.dris.channels.DrisSnapshotInstrumentTypeDataPublishChannelApiV1;
@@ -29,59 +30,58 @@ import ru.gx.fin.common.dris.repository.ProvidersRepository;
 
 import javax.annotation.PostConstruct;
 
-import static lombok.AccessLevel.PROTECTED;
-
+@RequiredArgsConstructor
+@Configuration
 public class DrisEntitiesUploadingConfiguration extends AbstractEntitiesUploadingConfiguration {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Fields">
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private DrisSnapshotPlaceDataPublishChannelApiV1 placeDataPublishChannelApiV1;
+    @NotNull
+    private final DrisSnapshotPlaceDataPublishChannelApiV1 placeDataPublishChannelApiV1;
 
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private DrisSnapshotProviderTypeDataPublishChannelApiV1 providerTypeDataPublishChannelApiV1;
+    @NotNull
+    private final DrisSnapshotProviderTypeDataPublishChannelApiV1 providerTypeDataPublishChannelApiV1;
 
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private DrisSnapshotProviderDataPublishChannelApiV1 providerDataPublishChannelApiV1;
+    @NotNull
+    private final DrisSnapshotProviderDataPublishChannelApiV1 providerDataPublishChannelApiV1;
 
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private DrisSnapshotInstrumentTypeDataPublishChannelApiV1 instrumentTypeDataPublishChannelApiV1;
+    @NotNull
+    private final DrisSnapshotInstrumentTypeDataPublishChannelApiV1 instrumentTypeDataPublishChannelApiV1;
 
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private PlaceKeyExtractor placeKeyExtractor;
+    @NotNull
+    private final PlaceKeyExtractor placeKeyExtractor;
 
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private ProviderTypeKeyExtractor ProviderTypeKeyExtractor;
+    @NotNull
+    private final ProviderTypeKeyExtractor ProviderTypeKeyExtractor;
 
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private ProviderKeyExtractor providerKeyExtractor;
+    @NotNull
+    private final ProviderKeyExtractor providerKeyExtractor;
 
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private InstrumentTypeKeyExtractor instrumentTypeKeyExtractor;
+    @NotNull
+    private final InstrumentTypeKeyExtractor instrumentTypeKeyExtractor;
 
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private PlaceDtoFromEntityConverter placeDtoFromEntityConverter;
+    @NotNull
+    private final PlaceDtoFromEntityConverter placeDtoFromEntityConverter;
 
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private ProviderTypeDtoFromEntityConverter providerTypeDtoFromEntityConverter;
+    @NotNull
+    private final ProviderTypeDtoFromEntityConverter providerTypeDtoFromEntityConverter;
 
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private ProviderDtoFromEntityConverter providerDtoFromEntityConverter;
+    @NotNull
+    private final ProviderDtoFromEntityConverter providerDtoFromEntityConverter;
 
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private InstrumentTypeDtoFromEntityConverter instrumentTypeDtoFromEntityConverter;
+    @NotNull
+    private final InstrumentTypeDtoFromEntityConverter instrumentTypeDtoFromEntityConverter;
 
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private PlacesRepository placesRepository;
+    @NotNull
+    private final PlacesRepository placesRepository;
 
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private ProviderTypesRepository providerTypesRepository;
+    @NotNull
+    private final ProviderTypesRepository providerTypesRepository;
 
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private ProvidersRepository providersRepository;
+    @NotNull
+    private final ProvidersRepository providersRepository;
 
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private InstrumentTypesRepository instrumentTypesRepository;
-
+    @NotNull
+    private final InstrumentTypesRepository instrumentTypesRepository;
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="implements EntitiesDtoLinksConfigurator">

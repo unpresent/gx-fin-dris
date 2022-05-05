@@ -1,10 +1,12 @@
 package ru.gx.fin.common.dris.converters;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.gx.core.data.edlinking.AbstractEntityFromDtoConverter;
 import ru.gx.fin.common.dris.out.ProviderType;
 import ru.gx.fin.common.dris.entities.ProviderTypeEntity;
@@ -12,10 +14,13 @@ import ru.gx.fin.common.dris.repository.ProviderTypesRepository;
 
 import static lombok.AccessLevel.PROTECTED;
 
+@RequiredArgsConstructor
+@Component
 public class ProviderTypeEntityFromDtoConverter extends AbstractEntityFromDtoConverter<ProviderTypeEntity, ProviderType> {
+
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private ProviderTypesRepository providerTypesRepository;
+    @NotNull
+    private final ProviderTypesRepository providerTypesRepository;
 
     @Override
     @Nullable

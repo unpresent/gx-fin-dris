@@ -1,9 +1,9 @@
 package ru.gx.fin.common.dris.config;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import ru.gx.core.redis.upload.AbstractRedisOutcomeCollectionsConfiguration;
 import ru.gx.core.redis.upload.RedisOutcomeCollectionUploadingDescriptor;
 import ru.gx.fin.common.dris.channels.DrisSnapshotInstrumentTypeDataPublishChannelApiV1;
@@ -15,25 +15,37 @@ import javax.annotation.PostConstruct;
 
 import static lombok.AccessLevel.PROTECTED;
 
+@Configuration
 public class RedisOutcomeCollectionsConfiguration extends AbstractRedisOutcomeCollectionsConfiguration {
-    @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private DrisSnapshotPlaceDataPublishChannelApiV1 placeChannelApiV1;
 
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private DrisSnapshotProviderTypeDataPublishChannelApiV1 providerTypeChannelApiV1;
+    @NotNull
+    private final DrisSnapshotPlaceDataPublishChannelApiV1 placeChannelApiV1;
 
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private DrisSnapshotProviderDataPublishChannelApiV1 providerChannelApiV1;
+    @NotNull
+    private final DrisSnapshotProviderTypeDataPublishChannelApiV1 providerTypeChannelApiV1;
 
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private DrisSnapshotInstrumentTypeDataPublishChannelApiV1 instrumentTypeChannelApiV1;
+    @NotNull
+    private final DrisSnapshotProviderDataPublishChannelApiV1 providerChannelApiV1;
 
-    public RedisOutcomeCollectionsConfiguration(@NotNull String configurationName) {
-        super(configurationName);
+    @Getter(PROTECTED)
+    @NotNull
+    private final DrisSnapshotInstrumentTypeDataPublishChannelApiV1 instrumentTypeChannelApiV1;
+
+    public RedisOutcomeCollectionsConfiguration(
+            @NotNull final RedisConnectionFactory connectionFactory,
+            @NotNull final DrisSnapshotPlaceDataPublishChannelApiV1 placeChannelApiV1,
+            @NotNull final DrisSnapshotProviderTypeDataPublishChannelApiV1 providerTypeChannelApiV1,
+            @NotNull final DrisSnapshotProviderDataPublishChannelApiV1 providerChannelApiV1,
+            @NotNull final DrisSnapshotInstrumentTypeDataPublishChannelApiV1 instrumentTypeChannelApiV1
+    ) {
+        super("redis-outcome-config", connectionFactory);
+        this.placeChannelApiV1 = placeChannelApiV1;
+        this.providerTypeChannelApiV1 = providerTypeChannelApiV1;
+        this.providerChannelApiV1 = providerChannelApiV1;
+        this.instrumentTypeChannelApiV1 = instrumentTypeChannelApiV1;
     }
 
     @SuppressWarnings("unchecked")

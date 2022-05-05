@@ -1,12 +1,16 @@
 package ru.gx.fin.common.dris.converters;
 
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.stereotype.Component;
 import ru.gx.core.data.NotAllowedObjectUpdateException;
 import ru.gx.core.data.edlinking.AbstractDtoFromEntityConverter;
 import ru.gx.fin.common.dris.entities.ProviderTypeEntity;
 import ru.gx.fin.common.dris.out.ProviderType;
 
+@RequiredArgsConstructor
+@Component
 public class ProviderTypeDtoFromEntityConverter extends AbstractDtoFromEntityConverter<ProviderType, ProviderTypeEntity> {
     @Override
     @Nullable

@@ -1,7 +1,5 @@
 service:
-  name: quik-provider
-  active-sessions-container:
-    enabled: true
+  name: gx-fin-dris
   standard-settings-controller:
     enabled: true
   simple-worker:
@@ -12,11 +10,6 @@ service:
     min-time-per-iteration-ms: 1000
     timeout-runner-life-ms: 60000
     print-statistics-every-ms: 1000
-  redis:
-    server: localhost
-    port: 6379
-    outcome-collections:
-      standard-uploader.enabled: true
   channels-api:
     dris-snapshots:
       places-v1.enabled: true
@@ -44,13 +37,16 @@ spring:
     show-sql: false
     hibernate:
       ddl-auto: validate # create, create-drop, update, validate
-      naming.physical-strategy: ru.gx.core.data.naming.PhysicalNamingStrategyQuotedImpl
+      naming.physical-strategy: ru.gx.core.jpa.naming.PhysicalNamingStrategyQuotedImpl
   datasource:
     url: jdbc:postgresql://localhost:5432/gxfin_dris
     username: gxfin
     password: 12033021
     hikari:
       maximum-pool-size: 2
+  redis:
+    host: localhost
+    port: 6379
 
 management:
   endpoints:

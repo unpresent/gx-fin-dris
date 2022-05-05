@@ -2,19 +2,18 @@ package ru.gx.fin.common.dris.datacontroller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.SessionFactory;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 import ru.gx.core.channels.ChannelApiDescriptor;
 import ru.gx.core.channels.ChannelConfigurationException;
-import ru.gx.core.data.ActiveSessionsContainer;
 import ru.gx.core.data.DataObject;
 import ru.gx.core.data.edlinking.EntitiesDtoLinksConfigurationException;
 import ru.gx.core.data.edlinking.EntityUploadingDescriptor;
 import ru.gx.core.data.entity.EntityObject;
+import ru.gx.core.data.sqlwrapping.ThreadConnectionsWrapper;
 import ru.gx.core.messaging.Message;
 import ru.gx.core.messaging.MessageBody;
 import ru.gx.core.messaging.MessageHeader;
@@ -27,50 +26,33 @@ import ru.gx.core.simpleworker.SimpleWorkerOnStoppingExecuteEvent;
 import ru.gx.fin.common.dris.config.DrisEntitiesUploadingConfiguration;
 import ru.gx.fin.common.dris.config.RedisOutcomeCollectionsConfiguration;
 
-import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
 import java.util.ArrayList;
 
 import static lombok.AccessLevel.PROTECTED;
 
 @Slf4j
+@RequiredArgsConstructor
+@Component
 public class DataController {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Fields">
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private DataSource dataSource;
+    private final SimpleWorker simpleWorker;
 
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private SimpleWorker simpleWorker;
+    private final DrisEntitiesUploadingConfiguration entitiesUploadingConfiguration;
 
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private DrisEntitiesUploadingConfiguration entitiesUploadingConfiguration;
+    private final RedisOutcomeCollectionsUploader redisUploader;
 
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private EntityManagerFactory entityManagerFactory;
+    private final RedisOutcomeCollectionsConfiguration redisOutcomeTopicsConfiguration;
 
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private ActiveSessionsContainer activeSessionsContainer;
-
-    private SessionFactory sessionFactory;
-
-    @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private RedisOutcomeCollectionsUploader redisUploader;
-
-    @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private RedisOutcomeCollectionsConfiguration redisOutcomeTopicsConfiguration;
-
+    private final ThreadConnectionsWrapper threadConnectionsWrapper;
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Обработка событий Worker-а">
@@ -85,17 +67,9 @@ public class DataController {
     public void startingExecute(SimpleWorkerOnStartingExecuteEvent event) throws Exception {
         log.debug("Starting startingExecute()");
 
-        if (this.sessionFactory == null) {
-            if (entityManagerFactory.unwrap(SessionFactory.class) == null) {
-                throw new NullPointerException("entityManagerFactory is not a hibernate factory!");
-            }
-            this.sessionFactory = entityManagerFactory.unwrap(SessionFactory.class);
-        }
-
         publishAllOnStart();
 
         log.debug("Finished startingExecute()");
-
     }
 
     /**
@@ -122,23 +96,7 @@ public class DataController {
             this.simpleWorker.runnerIsLifeSet();
             event.setImmediateRunNextIteration(false);
 
-            final var session = this.sessionFactory.openSession();
-            try (session) {
-                this.activeSessionsContainer.putCurrent(session);
-                final var tran = session.beginTransaction();
-
-                try {
-
-
-                    tran.commit();
-                } catch (Exception e) {
-                    tran.rollback();
-                    internalTreatmentExceptionOnDataRead(event, e);
-                }
-            } finally {
-                this.activeSessionsContainer.putCurrent(null);
-            }
-
+            // TODO: body
         } catch (Exception e) {
             internalTreatmentExceptionOnDataRead(event, e);
         } finally {

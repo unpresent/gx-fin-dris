@@ -10,13 +10,21 @@ CREATE TABLE IF NOT EXISTS "Dris"."Providers"
     "Code"          varchar(50)     COLLATE pg_catalog."default"        NOT NULL,
     "Name"          varchar(500)    COLLATE pg_catalog."default"            NULL,
     "Place_Id"      smallint                                                NULL,
-    CONSTRAINT "Providers_pkey" PRIMARY KEY ("Id"),
-    CONSTRAINT "Providers_fkey_Parent" FOREIGN KEY ("Parent_Id") REFERENCES "Dris"."Providers" ("Id"),
-    CONSTRAINT "Providers_fkey_Type" FOREIGN KEY ("Type_Id") REFERENCES "Dris"."Providers_Types" ("Id"),
-    CONSTRAINT "Providers_fkey_Place" FOREIGN KEY ("Place_Id") REFERENCES "Dris"."Places" ("Id")
+    CONSTRAINT "Providers_pk" PRIMARY KEY ("Id"),
+    CONSTRAINT "Providers_fk(Parent_Id)" FOREIGN KEY ("Parent_Id") REFERENCES "Dris"."Providers" ("Id"),
+    CONSTRAINT "Providers_fk(Type_Id)" FOREIGN KEY ("Type_Id") REFERENCES "Dris"."Providers_Types" ("Id"),
+    CONSTRAINT "Providers_fk(Place_Id)" FOREIGN KEY ("Place_Id") REFERENCES "Dris"."Places" ("Id"),
+    CONSTRAINT "Providers_uq(Code)" UNIQUE ("Code")
 ) TABLESPACE pg_default;
 
 ALTER TABLE "Dris"."Providers" OWNER to gxfin;
+
+COMMENT ON TABLE "Dris"."Providers" IS 'Провайдеры (поставщики информации)';
+COMMENT ON COLUMN "Dris"."Providers"."Parent_Id" IS 'Родительский провайдера (группа)';
+COMMENT ON COLUMN "Dris"."Providers"."Type_Id" IS 'Тип провайдера';
+COMMENT ON COLUMN "Dris"."Providers"."Code" IS 'Код';
+COMMENT ON COLUMN "Dris"."Providers"."Name" IS 'Название';
+COMMENT ON COLUMN "Dris"."Providers"."Place_Id" IS 'Площадка (одновременно и провайдер)';
 
 INSERT INTO "Dris"."Providers" ("Id", "Parent_Id", "Type_Id", "Code", "Name", "Place_Id")
 VALUES
