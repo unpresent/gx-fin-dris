@@ -32,7 +32,7 @@ import javax.annotation.PostConstruct;
 
 @RequiredArgsConstructor
 @Configuration
-public class DrisEntitiesUploadingConfiguration extends AbstractEntitiesUploadingConfiguration {
+public class EntitiesUploadingConfiguration extends AbstractEntitiesUploadingConfiguration {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Fields">
     @NotNull

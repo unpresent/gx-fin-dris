@@ -2,14 +2,12 @@ package ru.gx.fin.common.dris.converters;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.gx.core.data.edlinking.AbstractEntityFromDtoConverter;
-import ru.gx.fin.common.dris.out.ProviderType;
 import ru.gx.fin.common.dris.entities.ProviderTypeEntity;
+import ru.gx.fin.common.dris.out.ProviderType;
 import ru.gx.fin.common.dris.repository.ProviderTypesRepository;
 
 import static lombok.AccessLevel.PROTECTED;
@@ -24,7 +22,7 @@ public class ProviderTypeEntityFromDtoConverter extends AbstractEntityFromDtoCon
 
     @Override
     @Nullable
-    public ProviderTypeEntity findDtoBySource(@Nullable final ProviderType source) {
+    public ProviderTypeEntity findEntityBySource(@Nullable final ProviderType source) {
         if (source == null) {
             return null;
         }
@@ -33,7 +31,7 @@ public class ProviderTypeEntityFromDtoConverter extends AbstractEntityFromDtoCon
 
     @Override
     @NotNull
-    public ProviderTypeEntity createDtoBySource(@NotNull final ProviderType source) {
+    public ProviderTypeEntity createEntityBySource(@NotNull final ProviderType source) {
         final var result = new ProviderTypeEntity();
         updateDtoBySource(result, source);
         return result;

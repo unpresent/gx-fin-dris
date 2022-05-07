@@ -23,7 +23,7 @@ import ru.gx.core.simpleworker.SimpleWorker;
 import ru.gx.core.simpleworker.SimpleWorkerOnIterationExecuteEvent;
 import ru.gx.core.simpleworker.SimpleWorkerOnStartingExecuteEvent;
 import ru.gx.core.simpleworker.SimpleWorkerOnStoppingExecuteEvent;
-import ru.gx.fin.common.dris.config.DrisEntitiesUploadingConfiguration;
+import ru.gx.fin.common.dris.config.EntitiesUploadingConfiguration;
 import ru.gx.fin.common.dris.config.RedisOutcomeCollectionsConfiguration;
 
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class DataController {
     private final SimpleWorker simpleWorker;
 
     @Getter(PROTECTED)
-    private final DrisEntitiesUploadingConfiguration entitiesUploadingConfiguration;
+    private final EntitiesUploadingConfiguration entitiesUploadingConfiguration;
 
     @Getter(PROTECTED)
     private final RedisOutcomeCollectionsUploader redisUploader;
